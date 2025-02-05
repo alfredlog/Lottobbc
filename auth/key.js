@@ -1,0 +1,1 @@
+module.exports = "Gott ist mit uns "
