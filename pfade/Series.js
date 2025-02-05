@@ -11,7 +11,7 @@ const transporter = mailer.createTransport({
     secure : false,
     auth:
     {
-        user: process.env.MAIL,
+        user: process.env.EMAIL,
         pass: process.env.PASS
     }
 })
