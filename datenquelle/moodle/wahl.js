@@ -22,6 +22,10 @@ module.exports = (db, Dat)=>{
                 notNull : {nachrichte : "Der Code darf Keine Null sein"},
             }
         },
+        bezahlung :{
+            type : Dat.BOOLEAN,
+            allowNull : false,
+        },
         wahl : {
             type : Dat.STRING,
             allowNull : false,

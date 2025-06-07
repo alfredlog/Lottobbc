@@ -4,6 +4,7 @@ const {Benutzer, Series, Wahlen} = require("../datenquelle/db/db")
 const mailer = require("nodemailer")
 const {option3, option4, option6} = require("./options")
 const algorithme = require("./algorithme")
+const checkout = require("./Bezahlung/checkout")
 
 const transporter = mailer.createTransport({
     service : "gmail",
@@ -12,7 +13,7 @@ const transporter = mailer.createTransport({
     secure : false,
     auth:
     {
-        user: process.env.EMAIL,
+        user: process.env.MAIL,
         pass: process.env.PASS
     }
 })
@@ -31,79 +32,29 @@ module.exports = (app)=>{
                         Wahlen.create({
                             Email : Email,
                             codewahl : codewahl,
-                            wahl : wahl
+                            wahl : wahl,
+                            bezahlung : false
                         })
                         .then(()=>{
-                            Series.update({ziffer : (serie.ziffer += `${ziffer}` )}, {where : {codewahl:codewahl}})
+                            Series.update({ziffer : (serie.ziffer += `${ziffer},` )}, {where : {codewahl:codewahl}})
                              .then(()=>{
-                                Wahlen.findAndCountAll({where:{codewahl : codewahl}})
-                             .then((series, count)=>{
-                                if(series.count == 20)
-                                    {
-                                        var Liste = []
-                                        for(i=0; i<20; i++)
-                                            {
-                                                var w = series.rows[i].wahl.split(",")
-                                                for(j = 0; j < w.length ; j++)
-                                                    {
-                                                        Liste.push(w[j])
-                                                    }
-                                                
-                                            }
-                                            var empfänger = serie.Teilnehmer.split(";")
-                                            empfänger.push(["alfredmunganga@icloud.com"])
-                                            empfänger = empfänger.join(",")
-                                            const Hersteller = option4(codewahl,empfänger,algorithme(Liste, 20), algorithme(serie.ziffer.split(""), 1) )
-                                            transporter.sendMail(Hersteller, (err)=>{
-                                                if(err)
-                                                    {
-                                                        console.log(err)
-                                                        res.status(500).json(err)
-                                                    }
-                                                else
-                                                {
-                                                    console.log("Ende ok")
-                                                    const nachricht = "Der Lottospiel wurde erfolgreich abgeschlosssen"
-                                                    const data = serie.Emails.split(";").filter((e=>e !== Email))
-                                                    Series.update({Emails : data.join(";")}, {where:{codewahl: codewahl}})
-                                                     .then(()=>{
-                                                        res.status(200).json(nachricht)
-                                                     })
-                                                     .catch((err)=>{
-                                                        res.status(500).json(err)
-                                                    })
-                                                }
-                                            })
-                                    }
-                                else
-                                {
-                                    var Emails = []
-                                    for(i=0; i<series.rows.length;i++)
+                                Wahlen.findAll({where:{codewahl : codewahl}})
+                             .then(async(wahlen)=>{
+                                let Emails = []
+                                wahlen.map((x)=>{
+                                    Emails.push(x)
+                                })
+                                const link = await checkout(codewahl, Email)
+                                transporter.sendMail(option6(Email, ziffer, wahl,link.url, codewahl), (err)=>{
+                                    if(err)
                                         {
-                                            Emails.push(series.rows[i].Email)
-                                        } 
-                                    const Hersteller = option3(codewahl, "alfredmunganga@icloud.com",Emails , series.count)
-                                    transporter.sendMail(Hersteller, (err)=>{
-                                        if(err)
-                                            {
-                                                console.log(err)
-                                                res.status(500).json(err)
-                                            }
-                                        else
-                                        {
-                                            console.log("Ende ok")
-                                            const nachricht = "Der Lottospiel wurde erfolgreich aktualisiert"
-                                            const data = serie.Emails.split(";").filter((e=>e !== Email))
-                                            Series.update({Emails : data.join(";")}, {where:{codewahl: codewahl}})
-                                             .then(()=>{
-                                                res.status(200).json(nachricht)
-                                             })
-                                             .catch((err)=>{
-                                                res.status(500).json(err)
-                                            })
+                                            res.status(500).json(err)
                                         }
-                                    })
-                                }
+                                    else{
+                                        console.log(link)
+                                        res.status(200).json({nachrichte : "alles wird erfolgreich elerdigt", url : link.url})
+                                    }
+                                })
                              })
                              })
                              .catch((err)=>{

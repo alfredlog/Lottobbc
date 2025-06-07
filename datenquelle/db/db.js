@@ -2,6 +2,7 @@ const {Sequelize, DataTypes} = require("sequelize")
 const benutzer = require("../moodle/benutzer")
 const Serie = require("../moodle/Serie")
 const wahl = require("../moodle/wahl")
+const { FORCE } = require("sequelize/lib/index-hints")
 require("dotenv").config()
 const Db = new Sequelize(process.env.POSTGRES_URLV_URL, {dialectModule: require("pg")})
 

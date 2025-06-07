@@ -19,7 +19,7 @@ const transporter = mailer.createTransport({
 module.exports = (app)=>{
     app.post("/benutzer/:id/ziehung",auth,(req, res)=>{
         const codewahl = req.body.codewahl
-        Series.findOne({where:{codewahl:codewahl}})
+        Series.findOne({where:{codewahl:codewahl, bezahlung: true}})
          .then((serie)=>{
             if(serie)
             {

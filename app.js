@@ -7,13 +7,15 @@ const {sync} = require("./datenquelle/db/db")
 
 
 sync()
-app.use(body_parser.json())
 app.use(cors())
-app.listen(20008, ()=>{
+app.listen(4242, ()=>{
     console.log("http://localhost:20000")
 })
+require("./pfade/Bezahlung/webhook")(app)
+app.use(body_parser.json())
 require("./pfade/registierung")(app)
 require("./pfade/anmeldung")(app)
 require("./pfade/Series")(app)
 require("./pfade/ziehung")(app)
 require("./pfade/wahlen")(app)
+require("./pfade/Bezahlung/checkout")(app)
