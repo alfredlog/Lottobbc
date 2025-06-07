@@ -51,8 +51,15 @@ module.exports = (app)=>{
                                             res.status(500).json(err)
                                         }
                                     else{
-                                        console.log(link)
-                                        res.status(200).json({nachrichte : "alles wird erfolgreich elerdigt", url : link.url})
+                                            const data = serie.Emails.split(";").filter((e=>e !== Email))
+                                            Series.update({Emails : data.join(";")}, {where:{codewahl: codewahl}})
+                                             .then(()=>{
+                                                console.log(link)
+                                                res.status(200).json({nachrichte : "alles wird erfolgreich elerdigt", url : link.url})
+                                             })
+                                             .catch((err)=>{
+                                                res.status(500).json(err)
+                                            })
                                     }
                                 })
                              })
