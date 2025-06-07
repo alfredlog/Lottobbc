@@ -34,7 +34,7 @@ module.exports = (app)=>{
                     const Mails = Emails.split(";")
                     for(i=0; i< Mails.length; i++)
                         {
-                            const Teilnehmer = option1(codewahl, Mails[i], "https://lottobbc.vercel.app/wahl.html")
+                            const Teilnehmer = option1(codewahl, Mails[i], "http://localhost:2000*****")
                             transporter.sendMail(Teilnehmer, (err)=>{
                                 if(err)
                                     {
